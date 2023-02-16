@@ -1,0 +1,10 @@
+body {
+  font-family: sans-serif;
+  background-color: blueviolet;
+}
+
+#header {
+  font-size: 64px;
+  color: white;
+  margin-bottom: 50px;
+}
