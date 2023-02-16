@@ -16,13 +16,14 @@ const input = {
   ],
   design: {
     w: 180,
-    h: 100
+    h: 100,
+    margin: {
+      h: 10,
+      v: 5
+    },
   },
-  margin: {
-    h: 10,
-    v: 5
-  },
-  padding: 5
+
+  boxPadding: 5
 }
 
 
@@ -34,16 +35,25 @@ function packedBoxes(input) {
     },
     placed: [
       {
-        x: 0,
-        y: 0,
-        w: 10,
-        h: 20
+        x: 10,
+        y: 5,
+        w: 20,
+        h: 10,
+        color: "red"
       }, 
       {
-
-      },
+        x: 35,
+        y: 5,
+        w: 120,
+        h: 20,
+        color: "blue"
+      }, 
       {
-
+        x: 10,
+        y: 30,
+        w: 160,
+        h: 32,
+        color: "green"
       }
     ]
   }
@@ -63,12 +73,26 @@ function drawBoxes(output) {
     .viewbox(0, 0, width, height)
   
   
-  // Create sky
-  const sky = canvas.rect(width, height)
+  // Create window
+  const window = canvas.rect(width, height)
     .stroke("white")
    
 
   //TODO::  loop through all the output and draw here // placed all will be draw
+  output.placed.forEach(element => {
+
+    const x = element.x
+    const y = element.y
+    const width = element.w
+    const height = element.h
+    const color = element.color
+
+    // Create boxes
+    const boxes = canvas.rect(width, height)
+    .x(x)
+    .y(y)
+    .stroke(color)
+  });
 }
 
 
