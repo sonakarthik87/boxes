@@ -31,10 +31,24 @@ function packedBoxes(input) {
     design: {
       width: input.design.w,
       height: input.design.h,
-    }
+    },
+    placed: [
+      {
+        x: 0,
+        y: 0,
+        w: 10,
+        h: 20
+      }, 
+      {
+
+      },
+      {
+
+      }
+    ]
   }
 
-  // Answer of this program. will be sent as a JSON
+  // Answer of this program. will be sent as a JSON. 
   return output
 }
 
@@ -54,7 +68,7 @@ function drawBoxes(output) {
     .stroke("white")
    
 
-  //TODO::  loop through all the output and draw here
+  //TODO::  loop through all the output and draw here // placed all will be draw
 }
 
 
