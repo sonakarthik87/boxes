@@ -2,3 +2,4 @@ node_modules
 dist
 .cache
 .codesandbox
+.DS_Store
