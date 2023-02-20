@@ -41,96 +41,79 @@ function packedBoxes(input) {
   let totalWidth = input.design.w - (horiMargin * 2)
   let totalHeight = input.design.h - (vertMargin * 2)
 
-  let x = 0, y = 0;
-  let noOfBoxes = 0;
+  let x = horiMargin, y = vertMargin;
+
+  let remainingWidth = totalWidth
+  let remainingHeight = totalHeight
+
+  let filledHeight = 0;
+
   for(let i = 0; i < input.boxes.length; i++)
   {
     let boxWidth = input.boxes[i].w;
     let boxHeight = input.boxes[i].h;
 
-    if(i == 0)
+    if((boxWidth > remainingWidth) && (boxHeight > remainingHeight))
     {
-      if((boxWidth < totalWidth) && (boxHeight < totalHeight))
+      if((boxWidth - remainingWidth) > (boxHeight - remainingHeight))
       {
-        output.placed.push({x: horiMargin, y: vertMargin, w: boxWidth, h: boxHeight});
-        x = x + boxWidth;
+        let remaining = boxWidth - remainingWidth;
 
-        if(boxHeight > y)
-          y = boxHeight;
+        boxHeight = boxHeight - (boxHeight * (remaining / boxWidth));
+        boxWidth = remainingWidth;
       }
       else
       {
-        if(boxHeight > totalHeight)
-        {
-          let remaining = boxHeight - totalHeight;
+        let remaining = boxHeight - remainingHeight;
 
-          boxWidth = boxWidth - (boxWidth * (remaining / boxHeight));
-          boxHeight = totalHeight;
-        }
-        else if(boxWidth > totalWidth)
-        {
-          let remaining = boxWidth - totalWidth;
-
-          boxHeight = boxHeight - (boxHeight * (remaining / boxWidth));
-          boxWidth = totalWidth;
-        }
-        
-        output.placed.push({x: horiMargin, y: vertMargin, w: boxWidth, h: boxHeight});
-        
-        x = x + boxWidth;
-
-        if(boxHeight > y)
-          y = boxHeight;
+        boxWidth = boxWidth - (boxWidth * (remaining / boxHeight));
+        boxHeight = remainingHeight;
       }
     }
-    else
+    else if(boxWidth > remainingWidth)
     {
-      if((x + boxWidth) < totalWidth)
-      {
-        output.placed.push({x: horiMargin + x + padding, y: vertMargin, w: boxWidth, h: boxHeight});
+      let remaining = boxWidth - remainingWidth;
 
-        x = x + boxWidth;
+      boxHeight = boxHeight - (boxHeight * (remaining / boxWidth));
+      boxWidth = remainingWidth;
+    }
+    else if(boxHeight > remainingHeight)
+    {
+      let remaining = boxHeight - remainingHeight;
 
-        if(boxHeight > y)
-          y = boxHeight;
-      }
-      else
-      {
-        x = 0;
+      boxWidth = boxWidth - (boxWidth * (remaining / boxHeight));
+      boxHeight = remainingHeight;
+    }
+    
+    if(remainingWidth < totalWidth)
+      x = horiMargin + totalWidth - remainingWidth;
+    else
+      x = horiMargin;
+    
+    if(remainingHeight < totalHeight)
+      y = vertMargin + totalHeight - remainingHeight;
+    else
+      y = vertMargin
 
-        if((y + boxHeight) > totalHeight)
-        {
-          let remaining = (y + boxHeight) - totalHeight;
+    if(boxWidth > 0 && boxHeight > 0)
+      output.placed.push({x: x, y: y, w: boxWidth, h: boxHeight});
+    
+    remainingWidth = remainingWidth - boxWidth - padding;
+    
+    if(filledHeight < boxHeight)
+      filledHeight = boxHeight;
+    
+    if(((i + 1) < input.boxes.length) && (input.boxes[i + 1].w > remainingWidth))
+    {
+      remainingWidth = totalWidth;
+      remainingHeight = remainingHeight - filledHeight - padding;
+      filledHeight = 0;
 
-          boxWidth = boxWidth - (boxWidth * (remaining / boxHeight));
-          boxHeight = totalHeight - y;
+      if(remainingHeight < 0)
+        remainingHeight = 0
 
-          output.placed.push({x: horiMargin + x, y: vertMargin + y + padding, w: boxWidth, h: boxHeight});
-
-          break;
-        }
-        else if(boxWidth > totalWidth)
-        {
-          let remaining = boxWidth - totalWidth;
-
-          boxHeight = boxHeight - (boxHeight * (remaining / boxWidth));
-          boxWidth = totalWidth;
-
-          output.placed.push({x: horiMargin + x, y: vertMargin + y + padding, w: boxWidth, h: boxHeight});
-        
-          x = x + boxWidth;
-
-          y = y + boxHeight + padding;
-        }
-        else
-        {
-          output.placed.push({x: horiMargin + x, y: vertMargin + y + padding, w: boxWidth, h: boxHeight});
-        
-          x = x + boxWidth;
-
-          y = y + boxHeight + padding;
-        }
-      }
+      if(remainingWidth < 0)
+        remainingWidth = 0
     }
   }
 
@@ -175,25 +158,25 @@ function drawBoxes(output) {
 const input = {
   boxes: [
     {
-      w: 30, h: 10
+      w: 20, h: 10
     },
     {
       w: 120, h: 20
     },
     {
-      w: 300, h: 40
+      w: 300, h: 70
     }
   ],
   design: {
     w: 280,
     h: 100,
     margin: {
-      h: 30,
-      v: 30
+      h: 10,
+      v: 5
     },
   },
 
-  boxPadding: 10
+  boxPadding: 5
 }
 const result = packedBoxes(input)
 drawBoxes(result)
