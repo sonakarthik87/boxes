@@ -1,10 +1,26 @@
 body {
   font-family: sans-serif;
-  background-color: blueviolet;
+  background-color: #810034;
 }
 
 #header {
   font-size: 64px;
   color: white;
   margin-bottom: 50px;
+}
+
+.hour_marker {
+  fill: transparent;
+  stroke: red;
+  stroke-width: 7;
+  stroke-dasharray: 0.2, 4.8;
+  stroke-dashoffset: 0.1;
+}
+
+.minute_marker {
+  fill: transparent;
+  stroke: #0096FF;
+  stroke-width: 7;
+  stroke-dasharray: 0.2, 0.8;
+  stroke-dashoffset: 0.1;
 }
