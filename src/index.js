@@ -50,8 +50,8 @@ function packedBoxes(input) {
 
   for(let i = 0; i < input.boxes.length; i++)
   {
-    let boxWidth = input.boxes[i].w;
-    let boxHeight = input.boxes[i].h;
+    let boxWidth = getValue("width", input.boxes[i].w, input.boxes[i].h)
+    let boxHeight = getValue("height", input.boxes[i].w, input.boxes[i].h)
 
     if((boxWidth > remainingWidth) && (boxHeight > remainingHeight))
     {
@@ -103,7 +103,7 @@ function packedBoxes(input) {
     if(filledHeight < boxHeight)
       filledHeight = boxHeight;
     
-    if(((i + 1) < input.boxes.length) && (input.boxes[i + 1].w > remainingWidth))
+    if(((i + 1) < input.boxes.length) && (getValue("width", input.boxes[i].w, input.boxes[i].h) > remainingWidth))
     {
       remainingWidth = totalWidth;
       remainingHeight = remainingHeight - filledHeight - padding;
@@ -129,13 +129,15 @@ function drawBoxes(output) {
   const canvas = SVG()
     .addTo('#app')
     .size(width, height)
+    .attr("style", "border: 2px solid white")
     .viewbox(0, 0, width, height)
+    .attr("preserveAspectRatio", "xMidYMid meet")
   
   
   // Create window
   const window = canvas.rect(width, height)
-    .stroke("white")
-   
+    .fill("yellow")
+    .stroke("#E4FBFF")
 
   //TODO::  loop through all the output and draw here // placed all will be draw
   output.placed.forEach(element => {
@@ -150,7 +152,8 @@ function drawBoxes(output) {
     const boxes = canvas.rect(width, height)
     .x(x)
     .y(y)
-    .stroke("white")
+    .fill("transparent")
+    .stroke("green")
   });
 }
 
@@ -214,3 +217,20 @@ drawBoxes(result)
 
 // const result1 = packedBoxes(input1)
 // drawBoxes(result1)
+
+function getValue(property, imageWidth, imageHeight)
+{
+  const { PI, sin, cos, abs } = Math;
+  const angle = (90 * PI) / 180;
+  const sinAngle = sin(angle);
+  const cosAngle = cos(angle);
+  
+  if(property == "width")
+  {
+   return abs(imageWidth * cosAngle) + abs(imageHeight * sinAngle);
+  }
+  else
+  {
+    return abs(imageWidth * sinAngle) + abs(imageHeight * cosAngle);
+  }
+}

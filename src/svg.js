@@ -9,6 +9,7 @@ function drawCircle()
     const canvas = SVG()
     .addTo('#app')
     .size(width, height)
+    .attr("style", "border: 2px solid white")
     .viewbox(-200, -200, width, height)
 
     // Create window
