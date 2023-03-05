@@ -7,7 +7,7 @@ function drawCircle()
     let height = 400
 
     const canvas = SVG()
-    .addTo('#app')
+    .addTo('#clock')
     .size(width, height)
     .attr("style", "border: 2px solid white")
     .viewbox(-200, -200, width, height)

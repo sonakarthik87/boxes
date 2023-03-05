@@ -9,6 +9,11 @@ body {
   margin-bottom: 50px;
 }
 
+.linkStyle {
+  font-size: larger;
+  color: goldenrod;
+}
+
 .hour_marker {
   fill: transparent;
   stroke: red;

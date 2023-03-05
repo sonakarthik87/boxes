@@ -1,8 +1,9 @@
 import "./styles.css";
 import { SVG } from "@svgdotjs/svg.js";
 
-
-
+let degree = 0
+let boxWidth = 0
+let boxHeight = 0
 function packedBoxes(input) {
   const output = {
     design: {
@@ -10,27 +11,6 @@ function packedBoxes(input) {
       height: input.design.h,
     },
     placed: [
-      // {
-      //   x: 10,
-      //   y: 5,
-      //   w: 20,
-      //   h: 10,
-      //   color: "red"
-      // }, 
-      // {
-      //   x: 35,
-      //   y: 5,
-      //   w: 120,
-      //   h: 20,
-      //   color: "blue"
-      // }, 
-      // {
-      //   x: 10,
-      //   y: 30,
-      //   w: 160,
-      //   h: 32,
-      //   color: "green"
-      // }
     ]
   }
 
@@ -50,41 +30,12 @@ function packedBoxes(input) {
 
   for(let i = 0; i < input.boxes.length; i++)
   {
-    let boxWidth = getValue("width", input.boxes[i].w, input.boxes[i].h)
-    let boxHeight = getValue("height", input.boxes[i].w, input.boxes[i].h)
+    boxWidth = input.boxes[i].w;
+    boxHeight = input.boxes[i].h;
 
-    if((boxWidth > remainingWidth) && (boxHeight > remainingHeight))
-    {
-      if((boxWidth - remainingWidth) > (boxHeight - remainingHeight))
-      {
-        let remaining = boxWidth - remainingWidth;
+    if(degree == 0)
+      checkWidthHeight(boxWidth, boxHeight, remainingWidth, remainingHeight);
 
-        boxHeight = boxHeight - (boxHeight * (remaining / boxWidth));
-        boxWidth = remainingWidth;
-      }
-      else
-      {
-        let remaining = boxHeight - remainingHeight;
-
-        boxWidth = boxWidth - (boxWidth * (remaining / boxHeight));
-        boxHeight = remainingHeight;
-      }
-    }
-    else if(boxWidth > remainingWidth)
-    {
-      let remaining = boxWidth - remainingWidth;
-
-      boxHeight = boxHeight - (boxHeight * (remaining / boxWidth));
-      boxWidth = remainingWidth;
-    }
-    else if(boxHeight > remainingHeight)
-    {
-      let remaining = boxHeight - remainingHeight;
-
-      boxWidth = boxWidth - (boxWidth * (remaining / boxHeight));
-      boxHeight = remainingHeight;
-    }
-    
     if(remainingWidth < totalWidth)
       x = horiMargin + totalWidth - remainingWidth;
     else
@@ -94,26 +45,38 @@ function packedBoxes(input) {
       y = vertMargin + totalHeight - remainingHeight;
     else
       y = vertMargin
-
+    
     if(boxWidth > 0 && boxHeight > 0)
-      output.placed.push({x: x, y: y, w: boxWidth, h: boxHeight});
+      output.placed.push({x: x, y: y, w: boxWidth, h: boxHeight, degree: degree, color: input.boxes[i].color});
     
     remainingWidth = remainingWidth - boxWidth - padding;
     
     if(filledHeight < boxHeight)
       filledHeight = boxHeight;
     
-    if(((i + 1) < input.boxes.length) && (getValue("width", input.boxes[i].w, input.boxes[i].h) > remainingWidth))
+    let rotatedWidth = 0
+    if(((i + 1) < input.boxes.length) && (input.boxes[i + 1].w > remainingWidth))
     {
-      remainingWidth = totalWidth;
-      remainingHeight = remainingHeight - filledHeight - padding;
-      filledHeight = 0;
+      rotatedWidth = input.boxes[i + 1].h
 
-      if(remainingHeight < 0)
-        remainingHeight = 0
+      if(rotatedWidth < remainingWidth)
+      {
+        degree = 90
+      }
+      else
+      {
+        degree = 0
 
-      if(remainingWidth < 0)
-        remainingWidth = 0
+        remainingWidth = totalWidth;
+        remainingHeight = remainingHeight - filledHeight - padding;
+        filledHeight = 0;
+
+        if(remainingHeight < 0)
+          remainingHeight = 0
+
+        if(remainingWidth < 0)
+          remainingWidth = 0
+      }
     }
   }
 
@@ -121,18 +84,56 @@ function packedBoxes(input) {
   return output
 }
 
+//Function to check whether the width/height is less than available width/height
+function checkWidthHeight(bW, bH, remainingWidth, remainingHeight) {
+  if((bW > remainingWidth) && (boxHeight > remainingHeight))
+  {
+    if((bW - remainingWidth) > (boxHeight - remainingHeight))
+    {
+      let remaining = bW - remainingWidth;
+
+      boxHeight = getRemaining(bH, bW, remaining);
+      boxWidth = remainingWidth;
+    }
+    else
+    {
+      let remaining = boxHeight - remainingHeight;
+
+      boxWidth = getRemaining(bW, bH, remaining)
+      boxHeight = remainingHeight;
+    }
+  }
+  else if(bW > remainingWidth)
+  {
+    let remaining = bW - remainingWidth;
+
+    boxHeight = getRemaining(bH, bW, remaining)
+    boxWidth = remainingWidth;
+  }
+  else if(boxHeight > remainingHeight)
+  {
+    let remaining = boxHeight - remainingHeight;
+
+    boxWidth = getRemaining(bW, bH, remaining)
+    boxHeight = remainingHeight;
+  }
+}
+
+//Function to get Remaining Width/Height
+function getRemaining(attr1, attr2, remaining) {
+  return (attr1 - (attr1 * (remaining / attr2)));
+}
+
 function drawBoxes(output) {
   const width = output.design.width
   const height = output.design.height
   
-
   const canvas = SVG()
-    .addTo('#app')
+    .addTo('#boxes')
     .size(width, height)
     .attr("style", "border: 2px solid white")
     .viewbox(0, 0, width, height)
-    .attr("preserveAspectRatio", "xMidYMid meet")
-  
+    .attr("preserveAspectRatio", "xMaxYMax meet")
   
   // Create window
   const window = canvas.rect(width, height)
@@ -146,14 +147,19 @@ function drawBoxes(output) {
     const y = element.y
     const width = element.w
     const height = element.h
+    const degree = element.degree
     const color = element.color
+
+    let attr = ""
+    if(degree > 0)
+      attr = "translate(" + x + ") scale(" + height/width + ") rotate(" + degree + "," + x/2 + "," + y/2 + ")"
 
     // Create boxes
     const boxes = canvas.rect(width, height)
     .x(x)
     .y(y)
-    .fill("transparent")
-    .stroke("green")
+    .fill(color)
+    .attr("transform", attr)
   });
 }
 
@@ -161,13 +167,13 @@ function drawBoxes(output) {
 const input = {
   boxes: [
     {
-      w: 20, h: 10
+      w: 20, h: 10, color: "red"
     },
     {
-      w: 120, h: 20
+      w: 120, h: 20, color: "blue"
     },
     {
-      w: 300, h: 70
+      w: 300, h: 70, color: "green"
     }
   ],
   design: {
@@ -183,54 +189,3 @@ const input = {
 }
 const result = packedBoxes(input)
 drawBoxes(result)
-
-
-// const input1 = {
-//   boxes: [
-//     {
-//       w: 120, h: 50
-//     },
-//     {
-//       w: 300, h: 80
-//     },
-//     {
-//       w: 440, h: 40
-//     },
-//     {
-//       w: 500, h: 300
-//     },
-//     {
-//       w: 100, h: 80
-//     }
-//   ],
-//   design: {
-//     w: 500,
-//     h: 400,
-//     margin: {
-//       h: 10,
-//       v: 10
-//     },
-//   },
-
-//   boxPadding: 5
-// }
-
-// const result1 = packedBoxes(input1)
-// drawBoxes(result1)
-
-function getValue(property, imageWidth, imageHeight)
-{
-  const { PI, sin, cos, abs } = Math;
-  const angle = (90 * PI) / 180;
-  const sinAngle = sin(angle);
-  const cosAngle = cos(angle);
-  
-  if(property == "width")
-  {
-   return abs(imageWidth * cosAngle) + abs(imageHeight * sinAngle);
-  }
-  else
-  {
-    return abs(imageWidth * sinAngle) + abs(imageHeight * cosAngle);
-  }
-}
