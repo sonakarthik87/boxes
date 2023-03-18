@@ -4,6 +4,8 @@ import { SVG } from "@svgdotjs/svg.js";
 let degree = 0
 let boxWidth = 0
 let boxHeight = 0
+let remainingWidth = 0
+let remainingHeight = 0
 function packedBoxes(input) {
   const output = {
     design: {
@@ -23,8 +25,8 @@ function packedBoxes(input) {
 
   let x = horiMargin, y = vertMargin;
 
-  let remainingWidth = totalWidth
-  let remainingHeight = totalHeight
+  remainingWidth = totalWidth
+  remainingHeight = totalHeight
 
   let filledHeight = 0;
 
@@ -131,9 +133,9 @@ function drawBoxes(output) {
   const canvas = SVG()
     .addTo('#boxes')
     .size(width, height)
-    .attr("style", "border: 2px solid white")
+    //.attr("style", "border: 2px solid white")
     .viewbox(0, 0, width, height)
-    .attr("preserveAspectRatio", "xMaxYMax meet")
+    .attr("preserveAspectRatio", "xMinYMin meet")
   
   // Create window
   const window = canvas.rect(width, height)
@@ -152,8 +154,13 @@ function drawBoxes(output) {
 
     let attr = ""
     if(degree > 0)
-      attr = "translate(" + x + ") scale(" + height/width + ") rotate(" + degree + "," + x/2 + "," + y/2 + ")"
-
+    {
+      let rotatedWidth = height
+      let rotatedHeight = width
+      let ratio = remainingHeight / rotatedHeight
+      attr = "scale(" + ratio + ") rotate(" + degree + "," + (x + (width/2)) + "," +  (y + (height/2)) + ") translate(" + (rotatedHeight - x + (input.design.margin.h * ratio) - (input.boxPadding * (1 / ratio))) + " " + -(((rotatedWidth + input.design.margin.v) * (1 / ratio)) + input.boxPadding) + ")"
+    }
+    
     // Create boxes
     const boxes = canvas.rect(width, height)
     .x(x)
@@ -187,5 +194,6 @@ const input = {
 
   boxPadding: 5
 }
+
 const result = packedBoxes(input)
 drawBoxes(result)
